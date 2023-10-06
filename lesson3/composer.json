@@ -1,0 +1,17 @@
+{
+    "name": "stepa/lesson3",
+    "autoload": {
+        "psr-4": {
+            "my\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Stepan",
+            "email": "stepan.sharifulin@mail.ru"
+        }
+    ],
+    "require": {
+        "fakerphp/faker": "^1.23"
+    }
+}
