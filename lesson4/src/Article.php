@@ -3,8 +3,8 @@
 namespace my;
 
 class Article {
-    public $id;
-    public $author_id;
+    public $uuid;
+    public $author_uuid;
     public $title;
     public $text;
 }

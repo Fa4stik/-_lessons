@@ -3,7 +3,7 @@
 namespace my;
 
 class User {
-    public $id;
+    public $uuid;
     public $name;
     public $surname;
 }
