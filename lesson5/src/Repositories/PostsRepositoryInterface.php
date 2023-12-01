@@ -1,6 +1,8 @@
 <?php
 
-namespace my;
+namespace my\Repositories;
+
+use my\Model\Article;
 
 interface PostsRepositoryInterface {
     public function get(string $uuid): Article;

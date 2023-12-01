@@ -1,5 +1,7 @@
 <?php
-namespace my;
+namespace my\Repositories;
+
+use my\Model\Comment;
 
 interface CommentsRepositoryInterface {
     public function get(string $uuid): Comment;
