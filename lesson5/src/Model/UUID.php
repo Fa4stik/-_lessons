@@ -1,19 +1,22 @@
 <?php
 namespace my\Model;
 
+use my\Exceptions\InvalidArgumentException;
+use Ramsey\Uuid\Uuid as RamseyUuid;
+
 class UUID {
     public function __construct(
-        public string $uuid
+        private string $uuid
     ) {
-        if (!is_string($this->uuid))
-            throw new \InvalidArgumentException('Не корректный UUID');
+        if (!RamseyUuid::isValid($this->uuid))
+            throw new InvalidArgumentException('Не корректный UUID');
     }
 
-    public function toString() {
+    public function __toString(): string {
         return $this->uuid;
     }
 
     public static function random(): self {
-        return new self(\Ramsey\Uuid\Uuid::uuid4()->toString());
+        return new self(RamseyUuid::uuid4()->toString());
     }
 }

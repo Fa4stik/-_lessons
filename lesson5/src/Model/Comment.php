@@ -2,12 +2,30 @@
 
 namespace my\Model;
 
+use my\Model\UUID;
+
 class Comment {
-    function __construct(
-        public string $uuid,
-        public string $author_uuid,
-        public string $article_uuid,
-        public string $text) {
+    public function __construct(
+        private UUID $uuid,
+        private UUID $authorUuid,
+        private UUID $articleUuid,
+        private string $text) {
+    }
+
+    public function getUuid(): UUID {
+        return $this->uuid;
+    }
+
+    public function getAuthorUuid(): UUID {
+        return $this->authorUuid;
+    }
+
+    public function getArticleUuid(): UUID {
+        return $this->articleUuid;
+    }
+
+    public function getText(): string {
+        return $this->text;
     }
 }
 

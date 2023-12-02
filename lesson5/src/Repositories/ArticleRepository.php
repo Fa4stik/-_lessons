@@ -1,6 +1,9 @@
 <?php
 namespace my\Repositories;
 
+use my\Exceptions\ArticleIncorrectDataException;
+use my\Exceptions\ArticleNotFoundException;
+use my\Model\UUID;
 use PDO;
 use PDOException;
 use my\Model\Article;
@@ -10,21 +13,23 @@ class ArticleRepository implements PostsRepositoryInterface {
     public function __construct(private PDO $pdo) {
     }
 
-    public function get(string $uuid): Article {
+    public function get(UUID $uuid): Article {
         $stmt = $this->pdo->prepare("SELECT * FROM articles WHERE uuid = :uuid");
-        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+
         try {
-            $stmt->execute();
+            $stmt->execute([
+                ":uuid" => $uuid
+            ]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$result) {
-                throw new \Exception("Статья с UUID $uuid не найдена");
+                throw new ArticleNotFoundException("Статья с UUID $uuid не найдена");
             }
-
-            return new Article($result['uuid'], $result['author_uuid'],
-                $result['title'], $result['text']);
         } catch (PDOException $e) {
-            throw new \Exception("Ошибка при получении статьи: " . $e->getMessage());
+            throw new ArticleIncorrectDataException("Ошибка при получении статьи: " . $e->getMessage());
         }
+
+        return new Article($result['uuid'], $result['author_uuid'],
+            $result['title'], $result['text']);
     }
 
     public function save(Article $article): void {
@@ -33,13 +38,13 @@ class ArticleRepository implements PostsRepositoryInterface {
 
         try {
             $stmt->execute([
-                ':uuid' => $article->uuid,
-                ':author_uuid' => $article->author_uuid,
-                ':title' => $article->title,
-                ':text' => $article->text
+                ':uuid' => $article->getUuid(),
+                ':author_uuid' => $article->getAuthorUuid(),
+                ':title' => $article->getTitle(),
+                ':text' => $article->getText()
             ]);
         } catch (PDOException $e) {
-            throw new \Exception("Ошибка при сохранении статьи: " . $e->getMessage());
+            throw new ArticleIncorrectDataException("Ошибка при сохранении статьи: " . $e->getMessage());
         }
     }
 }

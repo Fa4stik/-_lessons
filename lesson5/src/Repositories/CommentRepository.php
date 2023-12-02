@@ -1,30 +1,36 @@
 <?php
 namespace my\Repositories;
 
+use my\Exceptions\CommentIncorrectDataException;
+use my\Exceptions\CommentNotFoundException;
+use my\Model\UUID;
 use PDO;
 use PDOException;
 use my\Model\Comment;
 
 class CommentRepository implements CommentsRepositoryInterface {
-
-    public function __construct(private PDO $pdo) {
+    public function __construct(
+        private PDO $pdo
+    ) {
     }
 
-    public function get(string $uuid): Comment {
+    public function get(UUID $uuid): Comment {
         $stmt = $this->pdo->prepare("SELECT * FROM comments WHERE uuid = :uuid");
-        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+
         try {
-            $stmt->execute();
+            $stmt->execute([
+                ":uuid" => $uuid
+            ]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$result) {
-                throw new \Exception("Статья с UUID $uuid не найдена");
+                throw new CommentNotFoundException("Комментарий с UUID $uuid не найден");
             }
-
-            return new Comment($result['uuid'], $result['author_uuid'],
-                $result['article_uuid'], $result['text']);
         } catch (PDOException $e) {
-            throw new \Exception("Ошибка при получении статьи: " . $e->getMessage());
+            throw new CommentIncorrectDataException("Ошибка при получении комментария: " . $e->getMessage());
         }
+
+        return new Comment($result['uuid'], $result['author_uuid'],
+            $result['article_uuid'], $result['text']);
     }
 
     public function save(Comment $comment): void {
@@ -33,13 +39,13 @@ class CommentRepository implements CommentsRepositoryInterface {
 
         try {
             $stmt->execute([
-                ':uuid' => $comment->uuid,
-                ':author_uuid' => $comment->author_uuid,
-                ':article_uuid' => $comment->article_uuid,
-                ':text' => $comment->text
+                ':uuid' => $comment->getUuid(),
+                ':author_uuid' => $comment->getAuthorUuid(),
+                ':article_uuid' => $comment->getArticleUuid(),
+                ':text' => $comment->getText()
             ]);
         } catch (PDOException $e) {
-            throw new \Exception("Ошибка при сохранении статьи: " . $e->getMessage());
+            throw new CommentIncorrectDataException("Ошибка при сохранении комментария: " . $e->getMessage());
         }
     }
 }

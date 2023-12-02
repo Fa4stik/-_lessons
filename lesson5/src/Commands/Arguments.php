@@ -1,6 +1,8 @@
 <?php
 
-namespace my\Model;
+namespace my\Commands;
+
+use my\Exceptions\ArgumentsException;
 
 class Arguments {
     public function __construct(
@@ -33,7 +35,7 @@ class Arguments {
 
     public function get(string $argument): string {
         if (!array_key_exists($argument, $this->arguments)) {
-            throw new \InvalidArgumentException('Аргумент не найдент');
+            throw new ArgumentsException('Аргумент не найдент');
         }
 
         return $this->arguments[$argument];
