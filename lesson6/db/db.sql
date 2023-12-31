@@ -20,3 +20,11 @@ CREATE TABLE comments (
     text TEXT NOT NULL,
     FOREIGN KEY(post_uuid) REFERENCES posts(uuid)
 );
+
+CREATE TABLE likes (
+    uuid TEXT PRIMARY KEY,
+    post_uuid TEXT NOT NULL,
+    user_uuid TEXT NOT NULL,
+    FOREIGN KEY (post_uuid) REFERENCES posts(uuid),
+    FOREIGN KEY (user_uuid) REFERENCES users(uuid)
+);

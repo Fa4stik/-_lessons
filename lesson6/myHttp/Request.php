@@ -78,4 +78,13 @@ class Request
 
         return $value;
     }
+
+    public function method(): string
+    {
+        if (!array_key_exists('REQUEST_METHOD', $this->server)) {
+            throw new HttpException('Cannot get method from request');
+        }
+
+        return $this->server['REQUEST_METHOD'];
+    }
 }
