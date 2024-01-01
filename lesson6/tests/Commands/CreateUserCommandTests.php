@@ -11,6 +11,7 @@ use src\Model\Name;
 use src\Model\User;
 use src\Model\UUID;
 use src\Repositories\UserRepositoryInterface;
+use tests\DummyLogger;
 
 class CreateUserCommandTests extends TestCase
 {
@@ -20,7 +21,7 @@ class CreateUserCommandTests extends TestCase
     protected function setUp(): void
     {
         $this->userRepository = $this->createMock(UserRepositoryInterface::class);
-        $this->createUserCommand = new CreateUserCommand($this->userRepository);
+        $this->createUserCommand = new CreateUserCommand($this->userRepository, new DummyLogger());
     }
 
     public function testHandleCreatesUserWhenNotExists(): void

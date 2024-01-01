@@ -16,9 +16,9 @@ class DIContainerTests extends TestCase
         $container = new DIContainer();
 
         $this->expectException(ContainerNotFoundException::class);
-        $this->expectExceptionMessage('Cannot resolve type: tests\Container\SomeClass');
+        $this->expectExceptionMessage('Cannot resolve type: tests\Container\NonExistentClass');
 
-        $container->get(SomeClass::class);
+        $container->get('tests\Container\NonExistentClass');
     }
 
     public function testItResolvesClassWithoutDependencies(): void
@@ -30,11 +30,11 @@ class DIContainerTests extends TestCase
 
     public function testItResolvesClassByContract(): void
     {
-        $container = new DIContainer;
+        $container = new DIContainer();
 
         $container->bind(UserRepositoryInterface::class, InMemoryUserRepository::class);
 
-        $object = $container->get(InMemoryUserRepository::class);
+        $object = $container->get(UserRepositoryInterface::class);
 
         $this->assertInstanceOf(InMemoryUserRepository::class, $object);
     }

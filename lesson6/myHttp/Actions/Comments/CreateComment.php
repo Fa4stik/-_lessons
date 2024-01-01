@@ -10,12 +10,13 @@ use myHttp\SuccessfullResponse;
 use src\Model\Comment;
 use src\Model\UUID;
 use src\Repositories\CommentRepository;
+use src\Repositories\CommentsRepositoryInterface;
 use src\Repositories\UserRepository;
 
 class CreateComment implements ActionInterface
 {
     public function __construct(
-        private CommentRepository $commentRepository
+        private CommentsRepositoryInterface $commentRepository
     ) { }
     public function handle(Request $request): Response
     {

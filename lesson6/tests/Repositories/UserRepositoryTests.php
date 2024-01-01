@@ -10,6 +10,7 @@ use src\Model\Name;
 use src\Model\User;
 use src\Model\UUID;
 use src\Repositories\UserRepository;
+use tests\DummyLogger;
 
 class UserRepositoryTests extends TestCase
 {
@@ -20,7 +21,7 @@ class UserRepositoryTests extends TestCase
     protected function setUp(): void {
         $this->pdoMock = $this->createMock(PDO::class);
         $this->stmtMock = $this->createMock(PDOStatement::class);
-        $this->repo = new UserRepository($this->pdoMock);
+        $this->repo = new UserRepository($this->pdoMock, new DummyLogger());
     }
 
     public function testItThrowsAnExceptionWhenUserNotFound(): void
@@ -36,16 +37,13 @@ class UserRepositoryTests extends TestCase
 
     public function testItSaveUserToDatabase(): void
     {
-        $uuid = UUID::random();
-
-        $this->stmtMock->expects($this->once())->method('execute')->with([
-            ':uuid' => $uuid,
-            ':username' => 'ivan123',
-            ':first_name' => 'ivan',
-            ':last_name' => 'ivanov',
-        ]);
+        $uuid = new UUID('310f3bc9-aa9d-4b5b-a00c-292c4c5dc729');
 
         $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
+        $this->stmtMock->method('fetchColumn')->willReturn(0);
+        $this->stmtMock->expects($this->exactly(2))
+            ->method('execute')
+            ->willReturn(true, true);
 
         $this->repo->save(
             new User(

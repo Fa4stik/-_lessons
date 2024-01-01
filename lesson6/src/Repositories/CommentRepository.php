@@ -3,6 +3,7 @@ namespace src\Repositories;
 
 use PDO;
 use PDOException;
+use Psr\Log\LoggerInterface;
 use src\Exceptions\CommentIncorrectDataException;
 use src\Exceptions\CommentNotFoundException;
 use src\Model\Comment;
@@ -10,7 +11,8 @@ use src\Model\UUID;
 
 class CommentRepository implements CommentsRepositoryInterface {
     public function __construct(
-        private PDO $pdo
+        private PDO $pdo,
+        private LoggerInterface $logger
     ) {
     }
 
@@ -24,12 +26,14 @@ class CommentRepository implements CommentsRepositoryInterface {
             ]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$result) {
-                throw new CommentNotFoundException("Комментарий с UUID $uuid не найден");
+                $this->logger->warning("Comment not found", ['uuid' => $uuid]);
+                throw new CommentNotFoundException("Comment with UUID $uuid not found");
             }
         } catch (PDOException $e) {
-            throw new CommentIncorrectDataException("Ошибка при получении комментария: " . $e->getMessage());
+            throw new CommentIncorrectDataException("Error when comment get: " . $e->getMessage());
         }
 
+        $this->logger->info("Comment get successfully", ['uuid' => $uuid]);
         return new Comment($result['uuid'], $result['author_uuid'],
             $result['post_uuid'], $result['text']);
     }
@@ -45,8 +49,10 @@ class CommentRepository implements CommentsRepositoryInterface {
                 ':post_uuid' => $comment->getPostUuid(),
                 ':text' => $comment->getText()
             ]);
+            $this->logger->info("Comment saved successfully", ['uuid' => $comment->getUuid()]);
         } catch (PDOException $e) {
-            throw new CommentIncorrectDataException("Ошибка при сохранении комментария: " . $e->getMessage());
+            $this->logger->warning("Comment not saved", ['uuid' => $comment->getUuid()]);
+            throw new CommentIncorrectDataException("Error when comment save: " . $e->getMessage());
         }
     }
 }

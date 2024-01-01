@@ -11,11 +11,12 @@ use src\Exceptions\InvalidArgumentException;
 use src\Model\Post;
 use src\Model\UUID;
 use src\Repositories\PostRepository;
+use src\Repositories\PostsRepositoryInterface;
 
 class CreatePost implements ActionInterface
 {
     public function __construct(
-        private PostRepository $postRepository
+        private PostsRepositoryInterface $postRepository
     ) { }
     public function handle(Request $request): Response
     {
@@ -32,7 +33,6 @@ class CreatePost implements ActionInterface
 
             $post = new Post($uuid, $authorUuid, $title, $text);
             $this->postRepository->save($post);
-
 
             return new SuccessfullResponse(['message' => 'Post created successfully']);
         } catch (\Exception $ex) {

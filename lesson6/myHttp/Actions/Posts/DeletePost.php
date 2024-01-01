@@ -10,11 +10,12 @@ use myHttp\SuccessfullResponse;
 use src\Exceptions\HttpException;
 use src\Exceptions\PostNotFoundException;
 use src\Repositories\PostRepository;
+use src\Repositories\PostsRepositoryInterface;
 
 class DeletePost implements ActionInterface
 {
     public function __construct(
-        private PostRepository $postRepository
+        private PostsRepositoryInterface $postRepository
     ) { }
 
     public function handle(Request $request): Response
