@@ -22,7 +22,7 @@ class CommentTests extends TestCase
 
         $this->assertEquals($uuid, $comment->getUuid());
         $this->assertEquals($authorUuid, $comment->getAuthorUuid());
-        $this->assertEquals($articleUuid, $comment->getArticleUuid());
+        $this->assertEquals($articleUuid, $comment->getPostUuid());
         $this->assertEquals($text, $comment->getText());
     }
 }

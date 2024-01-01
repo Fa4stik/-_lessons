@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use src\Exceptions\PostIncorrectDataException;
 use src\Model\UUID;
 use src\Repositories\PostRepository;
+use tests\DummyLogger;
 
 class CreatePostTest extends TestCase
 {
@@ -22,7 +23,7 @@ class CreatePostTest extends TestCase
     protected function setUp(): void {
         $this->pdoMock = $this->createMock(PDO::class);
         $this->stmtMock = $this->createMock(PDOStatement::class);
-        $this->postRepository = new PostRepository($this->pdoMock);
+        $this->postRepository = new PostRepository($this->pdoMock, new DummyLogger());
     }
 
     public function testItSuccess(): void
@@ -35,6 +36,7 @@ class CreatePostTest extends TestCase
 
        $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
        $this->stmtMock->method('execute')->willReturn(true);
+       $this->stmtMock->method('fetchColumn')->willReturn(10);
        $createPostAction = new CreatePost($this->postRepository);
        $response = $createPostAction->handle($request);
        $this->assertInstanceOf(SuccessfullResponse::class, $response);
@@ -73,7 +75,7 @@ class CreatePostTest extends TestCase
 
         $responseBody = $response->getBody();
         $responseBodyString = json_encode(json_decode($responseBody), JSON_UNESCAPED_UNICODE);
-        $this->assertSame('"Автор с UUID '.$uuid.' не найден"', $responseBodyString);
+        $this->assertSame('"Author with UUID '.$uuid.' not found"', $responseBodyString);
     }
 
     public function testItEmptyAuthorUuid(): void

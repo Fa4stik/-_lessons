@@ -11,6 +11,7 @@ use PDOStatement;
 use PHPUnit\Framework\TestCase;
 use src\Model\UUID;
 use src\Repositories\UserRepository;
+use tests\DummyLogger;
 
 class FindByUsernameTest extends TestCase
 {
@@ -21,12 +22,12 @@ class FindByUsernameTest extends TestCase
     protected function setUp(): void {
         $this->pdoMock = $this->createMock(PDO::class);
         $this->stmtMock = $this->createMock(PDOStatement::class);
-        $this->repo = new UserRepository($this->pdoMock);
+        $this->repo = new UserRepository($this->pdoMock, new DummyLogger());
     }
 
     public function testItReturnErrorIfParamUserNotFound(): void
     {
-        $request = new Request([], []);
+        $request = new Request([], [], []);
         $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
         $this->stmtMock->method('fetch')->willReturn(false);
 
@@ -41,7 +42,7 @@ class FindByUsernameTest extends TestCase
 
     public function testItReturnErrorIfUserNotFound(): void
     {
-        $request = new Request(['username' => 'Ivan'], []);
+        $request = new Request(['username' => 'Ivan'], [], []);
         $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
         $this->stmtMock->method('fetch')->willReturn(false);
 
@@ -65,7 +66,7 @@ class FindByUsernameTest extends TestCase
             'last_name' => 'Ivanov',
         ];
 
-        $request = new Request(['username' => 'Ivan'], []);
+        $request = new Request(['username' => 'Ivan'], [], []);
         $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
         $this->stmtMock->method('fetch')->willReturn($mockUserData);
 

@@ -4,6 +4,7 @@ namespace src\Repositories;
 
 use PDO;
 use PDOException;
+use Psr\Log\LoggerInterface;
 use src\Exceptions\CommentLikeAlreadyExistsException;
 use src\Exceptions\CommentLikeIncorrectDataException;
 use src\Exceptions\CommentLikeNotFoundException;
@@ -13,7 +14,8 @@ use src\Model\UUID;
 class CommentLikeRepository implements CommentLikeRepositoryInterface
 {
     public function __construct(
-        private PDO $pdo
+        private PDO $pdo,
+        private LoggerInterface $logger
     ) { }
 
     public function save(CommentLike $commentLike)
@@ -21,6 +23,7 @@ class CommentLikeRepository implements CommentLikeRepositoryInterface
         $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM comments WHERE uuid = :comment_uuid");
         $stmt->execute([':comment_uuid' => $commentLike->getCommentUuid()]);
         if ($stmt->fetchColumn() == 0) {
+            $this->logger->warning("Comment not found", ['uuid' => $commentLike->getCommentUuid()]);
             throw new CommentLikeIncorrectDataException("Comment with UUID 
                 {$commentLike->getCommentUuid()} not found");
         }
@@ -28,6 +31,7 @@ class CommentLikeRepository implements CommentLikeRepositoryInterface
         $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM users WHERE uuid = :user_uuid");
         $stmt->execute([':user_uuid' => $commentLike->getUserUuid()]);
         if ($stmt->fetchColumn() == 0) {
+            $this->logger->warning("User not found", ['uuid' => $commentLike->getUserUuid()]);
             throw new CommentLikeIncorrectDataException("User with UUID 
                 {$commentLike->getUserUuid()} not found");
         }
@@ -39,6 +43,9 @@ class CommentLikeRepository implements CommentLikeRepositoryInterface
             ':user_uuid' => $commentLike->getUserUuid()
         ]);
         if ($stmt->fetchColumn() > 0) {
+            $this->logger->warning("Like from user to pos not found",
+                ['userUuid' => $commentLike->getUserUuid(),
+                    'commentUuid' => $commentLike->getCommentUuid()]);
             throw new CommentLikeAlreadyExistsException("Like from user UUID 
                 {$commentLike->getUserUuid()} to post UUID {$commentLike->getCommentUuid()} already exists");
         }
@@ -52,6 +59,7 @@ class CommentLikeRepository implements CommentLikeRepositoryInterface
                 ':comment_uuid' => $commentLike->getCommentUuid(),
                 ':user_uuid' => $commentLike->getUserUuid(),
             ]);
+            $this->logger->info("Like saved successfully", ['uuid' => $commentLike->getUuid()]);
         } catch (PDOException $e) {
             throw new CommentLikeIncorrectDataException("Incorrect to save comment like: " .
                 $e->getMessage());
@@ -63,6 +71,7 @@ class CommentLikeRepository implements CommentLikeRepositoryInterface
         $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM comments WHERE uuid = :comment_uuid");
         $stmt->execute([':comment_uuid' => $commentUuid]);
         if ($stmt->fetchColumn() == 0) {
+            $this->logger->warning("Comment not found", ['uuid' => $commentUuid]);
             throw new CommentLikeIncorrectDataException("Comment with UUID 
                 {$commentUuid} not found");
         }
@@ -80,6 +89,7 @@ class CommentLikeRepository implements CommentLikeRepositoryInterface
                     new UUID($row['user_uuid'])
                 );
             }
+            $this->logger->info("Likes by comment get successfully", ['uuid' => $commentUuid]);
         } catch (\PDOException) {
             throw new CommentLikeNotFoundException('Comment like not found');
         }

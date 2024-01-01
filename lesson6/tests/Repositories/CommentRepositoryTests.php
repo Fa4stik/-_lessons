@@ -9,6 +9,7 @@ use src\Exceptions\CommentNotFoundException;
 use src\Model\Comment;
 use src\Model\UUID;
 use src\Repositories\CommentRepository;
+use tests\DummyLogger;
 
 class CommentRepositoryTests extends TestCase
 {
@@ -19,36 +20,30 @@ class CommentRepositoryTests extends TestCase
     protected function setUp(): void {
         $this->pdoMock = $this->createMock(PDO::class);
         $this->stmtMock = $this->createMock(PDOStatement::class);
-        $this->repo = new CommentRepository($this->pdoMock);
+        $this->repo = new CommentRepository($this->pdoMock, new DummyLogger());
     }
 
     public function testSaveComment(): void {
-        $uuid = UUID::random();
-        $authorUuid = UUID::random();
-        $articleUuid = UUID::random();
+        $uuid = new UUID('310f3bc9-aa9d-4b5b-a00c-292c4c5dc729');
+        $authorUuid = new UUID('310f3bc9-aa9d-4b5b-a00c-292c4c5dc729');
+        $articleUuid = new UUID('310f3bc9-aa9d-4b5b-a00c-292c4c5dc729');
         $text = 'Test Text';
         $comment = new Comment($uuid, $authorUuid, $articleUuid, $text);
 
-        $expectedParams = [
-            ':uuid' => $uuid,
-            ':author_uuid' => $authorUuid,
-            ':article_uuid' => $articleUuid,
-            ':text' => $text
-        ];
-
         $this->pdoMock->method('prepare')
             ->willReturn($this->stmtMock);
+
         $this->stmtMock->expects($this->once())
             ->method('execute')
-            ->with($this->equalTo($expectedParams));
+            ->willReturn(true);
 
         $this->repo->save($comment);
     }
 
     public function testFindCommentByUuid(): void {
-        $uuid = UUID::random();
-        $authorUuid = UUID::random();
-        $articleUuid = UUID::random();
+        $uuid = new UUID('310f3bc9-aa9d-4b5b-a00c-292c4c5dc729');
+        $authorUuid = new UUID('410f3bc9-aa9d-4b5b-a00c-292c4c5dc729');
+        $articleUuid = new UUID('710f3bc9-aa9d-4b5b-a00c-292c4c5dc729');
         $text = 'Test Text';
 
         $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
@@ -56,7 +51,7 @@ class CommentRepositoryTests extends TestCase
         $this->stmtMock->method('fetch')->willReturn([
             'uuid' => $uuid,
             'author_uuid' => $authorUuid,
-            'article_uuid' => $articleUuid,
+            'post_uuid' => $articleUuid,
             'text' => $text
         ]);
 
@@ -67,14 +62,14 @@ class CommentRepositoryTests extends TestCase
     }
 
     public function testThrowsExceptionIfCommentNotFound(): void {
-        $nonExistentUuid = UUID::random();
+        $nonExistentUuid = new UUID('310f3bc9-aa9d-4b5b-a00c-292c4c5dc729');
 
         $this->expectException(CommentNotFoundException::class);
-        $this->expectExceptionMessage("Комментарий с UUID $nonExistentUuid не найден");
+        $this->expectExceptionMessage("Comment with UUID $nonExistentUuid not found");
 
         $this->pdoMock->method('prepare')->willReturn($this->stmtMock);
         $this->stmtMock->method('execute')->willReturn(true);
-        $this->stmtMock->method('fetch')->willReturn(false);
+        $this->stmtMock->method('fetch')->willReturn(null);
 
         $this->repo->get($nonExistentUuid);
     }

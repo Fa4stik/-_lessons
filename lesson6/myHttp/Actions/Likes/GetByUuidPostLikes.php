@@ -12,11 +12,12 @@ use src\Exceptions\PostLikeNotFoundException;
 use src\Model\PostLike;
 use src\Model\UUID;
 use src\Repositories\PostLikeRepository;
+use src\Repositories\PostLikeRepositoryInterface;
 
 class GetByUuidPostLikes implements ActionInterface
 {
     public function __construct(
-        private PostLikeRepository $postLikeRepository
+        private PostLikeRepositoryInterface $postLikeRepository
     )
     {
 

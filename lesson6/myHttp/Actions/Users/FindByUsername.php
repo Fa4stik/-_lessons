@@ -3,17 +3,18 @@ namespace myHttp\Actions\Users;
 
 use myHttp\Actions\ActionInterface;
 use myHttp\ErrorResponse;
-use myHttp\SuccessfullResponse;
 use myHttp\Request;
 use myHttp\Response;
+use myHttp\SuccessfullResponse;
 use src\Exceptions\HttpException;
 use src\Exceptions\UserNotFoundException;
 use src\Repositories\UserRepository;
+use src\Repositories\UserRepositoryInterface;
 
 class FindByUsername implements ActionInterface
 {
     public function __construct(
-        private UserRepository $userRepository
+        private UserRepositoryInterface $userRepository,
     ) {}
 
     public function handle(Request $request): Response
