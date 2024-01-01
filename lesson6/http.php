@@ -1,5 +1,7 @@
 <?php
 
+use myHttp\Actions\Auth\Login;
+use myHttp\Actions\Auth\Logout;
 use myHttp\Actions\Comments\CreateComment;
 use myHttp\Actions\Likes\CreateCommentLike;
 use myHttp\Actions\Likes\CreatePostLike;
@@ -53,10 +55,12 @@ $routs = [
     ],
     'POST' => [
         '/posts/comment' => CreateComment::class,
-        '/posts/' => CreatePost::class,
-        '/likes/post/' => CreatePostLike::class,
-        '/likes/comment/' => CreateCommentLike::class,
-        '/user/' => CreateUser::class
+        '/posts' => CreatePost::class,
+        '/likes/post' => CreatePostLike::class,
+        '/likes/comment' => CreateCommentLike::class,
+        '/user' => CreateUser::class,
+        '/login' => Login::class,
+        '/logout' => Logout::class
     ],
     'DELETE' => [
         '/posts' => DeletePost::class

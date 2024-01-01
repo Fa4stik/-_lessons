@@ -49,6 +49,7 @@ class UserRepositoryTests extends TestCase
             new User(
                 $uuid,
                 'ivan123',
+                '123',
                 new Name('ivan', 'ivanov')
             )
         );
@@ -62,6 +63,7 @@ class UserRepositoryTests extends TestCase
         $this->stmtMock->method('fetch')->willReturn([
             'uuid' => $uuid,
             'username' => 'ivan123',
+            'password' => 'ivan123',
             'first_name' => 'ivan',
             'last_name' => 'ivanov',
         ]);
@@ -80,6 +82,7 @@ class UserRepositoryTests extends TestCase
         $this->stmtMock->method('fetch')->willReturn([
             'uuid' => UUID::random(),
             'username' => $username,
+            'password' => $username,
             'first_name' => 'ivan',
             'last_name' => 'ivanov',
         ]);

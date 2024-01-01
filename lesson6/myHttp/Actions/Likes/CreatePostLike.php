@@ -3,10 +3,12 @@
 namespace myHttp\Actions\Likes;
 
 use myHttp\Actions\ActionInterface;
+use myHttp\Auth\TokenAuthInterface;
 use myHttp\ErrorResponse;
 use myHttp\Request;
 use myHttp\Response;
 use myHttp\SuccessfullResponse;
+use src\Exceptions\AuthException;
 use src\Model\PostLike;
 use src\Model\UUID;
 use src\Repositories\PostLikeRepository;
@@ -15,7 +17,8 @@ use src\Repositories\PostLikeRepositoryInterface;
 class CreatePostLike implements ActionInterface
 {
     public function __construct(
-        private PostLikeRepositoryInterface $postLikeRepository
+        private PostLikeRepositoryInterface $postLikeRepository,
+        private TokenAuthInterface $auth
     )
     {
 
@@ -24,10 +27,17 @@ class CreatePostLike implements ActionInterface
     public function handle(Request $request): Response
     {
         try {
-            $data = $request->body(['post_uuid', 'user_uuid']);
+            $data = $request->body(['post_uuid']);
+
+            try {
+                $user = $this->auth->user($request);
+            } catch (AuthException $ex) {
+                return new ErrorResponse($ex->getMessage());
+            }
+
             $uuid = UUID::random();
             $postUuid = new UUID($data['post_uuid']);
-            $userUuid = new UUID($data['user_uuid']);
+            $userUuid = $user->getUuid();
 
             $post = new PostLike($uuid, $postUuid, $userUuid);
             $this->postLikeRepository->save($post);

@@ -31,15 +31,16 @@ class UserRepository implements UserRepositoryInterface {
             throw new UserIncorrectDataException("User already exist with username ".$user->getUsername());
         }
 
-        $stmt = $this->pdo->prepare("INSERT INTO users(uuid, username, first_name, last_name)
-                                    VALUES (:uuid, :username, :first_name, :last_name)");
+        $stmt = $this->pdo->prepare("INSERT INTO users(uuid, username, first_name, last_name, password)
+                                    VALUES (:uuid, :username, :first_name, :last_name, :password)");
 
         try {
             $stmt->execute([
                 ":uuid" => $user->getUuid(),
                 ":username" => $user->getUsername(),
                 ":first_name" => $user->getName()->getFirstName(),
-                ":last_name" => $user->getName()->getLastName()
+                ":last_name" => $user->getName()->getLastName(),
+                ":password" => $user->getHashedPassword()
             ]);
             $this->logger->info("User saved successfully", ['uuid' => $user->getUuid()]);
         } catch (PDOException $e) {
@@ -68,6 +69,7 @@ class UserRepository implements UserRepositoryInterface {
         return new User(
             new UUID($result['uuid']),
             $result['username'],
+            $result['password'],
             new Name(
                 $result['first_name'],
                 $result['last_name']
@@ -90,9 +92,13 @@ class UserRepository implements UserRepositoryInterface {
         }
 
         $this->logger->info("User get successfully", ['uuid' => $uuid]);
-        return new User($result['uuid'], $result['username'], new Name(
-            $result['first_name'],
-            $result['last_name']
+        return new User(
+            new UUID($result['uuid']),
+            $result['username'],
+            $result['password'],
+            new Name(
+                $result['first_name'],
+                $result['last_name']
         ));
     }
 }

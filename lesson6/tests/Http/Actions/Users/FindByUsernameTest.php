@@ -57,13 +57,14 @@ class FindByUsernameTest extends TestCase
 
     public function testItReturnUserByName(): void
     {
-        $uuid = UUID::random();
+        $uuid = new UUID('c89457cb-27b6-4ed4-bc90-503f1b47a2dc');
 
         $mockUserData = [
             'uuid' => $uuid,
             'username' => 'ivan123',
             'first_name' => 'Ivan',
             'last_name' => 'Ivanov',
+            'password' => '123',
         ];
 
         $request = new Request(['username' => 'Ivan'], [], []);

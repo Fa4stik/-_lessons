@@ -3,8 +3,15 @@
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger;
+use myHttp\Auth\AuthInterface;
+use myHttp\Auth\BearerTokenAuth;
+use myHttp\Auth\PasswordAuth;
+use myHttp\Auth\PasswordAuthInterface;
+use myHttp\Auth\TokenAuthInterface;
 use Psr\Log\LoggerInterface;
 use src\Container\DIContainer;
+use src\Repositories\AuthTokenRepository;
+use src\Repositories\AuthTokenRepositoryInterface;
 use src\Repositories\CommentLikeRepository;
 use src\Repositories\CommentLikeRepositoryInterface;
 use src\Repositories\CommentRepository;
@@ -29,6 +36,9 @@ $container->bind(CommentLikeRepositoryInterface::class, CommentLikeRepository::c
 $container->bind(CommentsRepositoryInterface::class, CommentRepository::class);
 $container->bind(PostLikeRepositoryInterface::class, PostLikeRepository::class);
 $container->bind(PostsRepositoryInterface::class, PostRepository::class);
+$container->bind(PasswordAuthInterface::class, PasswordAuth::class);
+$container->bind(AuthTokenRepositoryInterface::class, AuthTokenRepository::class);
+$container->bind(TokenAuthInterface::class, BearerTokenAuth::class);
 
 $logger = (new Logger('blog'));
 

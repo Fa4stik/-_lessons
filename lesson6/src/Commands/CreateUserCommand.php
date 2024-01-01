@@ -31,6 +31,7 @@ class CreateUserCommand {
         $this->logger->info('Create user command start');
 
         $username = $arguments->get('username');
+        $password = $arguments->get('password');
 
         if ($this->userExist($username)) {
             $this->logger->warning("User already exists: $username");
@@ -39,17 +40,17 @@ class CreateUserCommand {
             );
         }
 
-        $userUuid = UUID::random();
-
-        $this->userRepository->save(new User(
-            $userUuid,
+        $user = User::createForm(
             $username,
+            $password,
             new Name(
                 $arguments->get('first_name'),
                 $arguments->get('last_name')
             )
-        ));
+        );
 
-        $this->logger->info("User created with UUID $userUuid");
+        $this->userRepository->save($user);
+
+        $this->logger->info("User created with UUID {$user->getUuid()}");
     }
 }

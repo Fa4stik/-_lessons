@@ -5,6 +5,7 @@ namespace tests\Commands;
 use PHPUnit\Framework\TestCase;
 use src\Commands\Arguments;
 use src\Commands\CreateUserCommand;
+use src\Exceptions\ArgumentsException;
 use src\Exceptions\CommandException;
 use src\Exceptions\UserNotFoundException;
 use src\Model\Name;
@@ -34,6 +35,7 @@ class CreateUserCommandTests extends TestCase
         $arguments->method('get')
             ->willReturnMap([
                 ['username', 'testuser'],
+                ['password', '123'],
                 ['first_name', 'Test'],
                 ['last_name', 'User']
             ]);
@@ -53,12 +55,14 @@ class CreateUserCommandTests extends TestCase
         $this->expectExceptionMessage("User already exists: testuser");
 
         $username = 'testuser';
+        $password = '123';
         $uuid = UUID::random();
         $this->userRepository
             ->method('getByUsername')
             ->willReturn(new User(
                 $uuid,
                 $username,
+                $password,
                 new Name(
                     "firstName",
                     "lastName"
@@ -70,5 +74,13 @@ class CreateUserCommandTests extends TestCase
             ->willReturn($username);
 
         $this->createUserCommand->handle($arguments);
+    }
+
+    public function testItPequiewsPassword(): void
+    {
+        $this->expectException(ArgumentsException::class);
+        $this->expectExceptionMessage('Аргумент не найдент');
+
+        $this->createUserCommand->handle(new Arguments(['username' => 'Ivan']));
     }
 }

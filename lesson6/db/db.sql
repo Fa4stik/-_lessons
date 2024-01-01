@@ -36,3 +36,11 @@ CREATE TABLE comment_likes (
     FOREIGN KEY (comment_uuid) REFERENCES comments(uuid),
     FOREIGN KEY (user_uuid) REFERENCES users(uuid)
 );
+
+CREATE TABLE tokens
+(
+    token TEXT PRIMARY KEY,
+    user_uuid TEXT NOT NULL,
+    expires_on TEXT NOT NULL,
+    FOREIGN KEY (user_uuid) REFERENCES users(uuid)
+);
