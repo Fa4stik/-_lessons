@@ -3,10 +3,13 @@
 namespace myHttp\Actions\Posts;
 
 use myHttp\Actions\ActionInterface;
+use myHttp\Auth\AuthInterface;
+use myHttp\Auth\TokenAuthInterface;
 use myHttp\ErrorResponse;
 use myHttp\Request;
 use myHttp\Response;
 use myHttp\SuccessfullResponse;
+use src\Exceptions\AuthException;
 use src\Exceptions\InvalidArgumentException;
 use src\Model\Post;
 use src\Model\UUID;
@@ -16,14 +19,21 @@ use src\Repositories\PostsRepositoryInterface;
 class CreatePost implements ActionInterface
 {
     public function __construct(
-        private PostsRepositoryInterface $postRepository
+        private PostsRepositoryInterface $postRepository,
+        private TokenAuthInterface $auth
     ) { }
     public function handle(Request $request): Response
     {
         try {
-            $data = $request->body(['author_uuid', 'title', 'text']);
+            $user = $this->auth->user($request);
+        } catch (AuthException $ex) {
+            return new ErrorResponse($ex->getMessage());
+        }
+
+        try {
+            $data = $request->body(['title', 'text']);
             $uuid = UUID::random();
-            $authorUuid = new UUID($data['author_uuid']);
+            $authorUuid = $user->getUuid();
             $title = $data['title'];
             $text = $data['text'];
 
